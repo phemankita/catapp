@@ -1,4 +1,4 @@
-apiVersion: triggers.tekton.dev/v1alpha1
+apiVersion: tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
   name: catapp-build-and-deploy
@@ -15,7 +15,7 @@ spec:
   - name: SERVICE_ACCOUNT
     description: The ServiceAccount under which to run the Pipeline.
   resourcetemplates:
-  - apiVersion: tekton.dev/v1beta1
+  - apiVersion: tekton.dev/v1alpha1
     kind: PipelineRun
     metadata:
       generateName: catapp-build-and-deploy-
@@ -42,7 +42,7 @@ spec:
       - name: DEPLOYMENT
         value: $(params.DEPLOYMENT)
 ---
-apiVersion: triggers.tekton.dev/v1alpha1
+apiVersion: tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
   name: catapp-build-and-deploy
@@ -70,15 +70,15 @@ metadata:
   name: catapp
 rules:
 # Permissions for every EventListener deployment to function
-- apiGroups: ["triggers.tekton.dev"]
-  resources: ["eventlisteners", "triggerbindings", "triggertemplates"]
+- apiGroups: ["tekton.dev"]
+  resources: ["eventlisteners", "triggerbindings", "triggertemplates", "tasks", "taskruns"]
   verbs: ["get"]
 - apiGroups: [""]
   resources: ["configmaps"]
   verbs: ["get", "list", "watch"]
 # Permissions to create resources in associated TriggerTemplates
 - apiGroups: ["tekton.dev"]
-  resources: ["pipelineruns"]
+  resources: ["pipelineruns", "pipelineresources", "taskruns"]
   verbs: ["create"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -93,7 +93,7 @@ roleRef:
   kind: Role
   name: catapp
 ---
-apiVersion: triggers.tekton.dev/v1alpha1
+apiVersion: tekton.dev/v1alpha1
 kind: EventListener
 metadata:
   name: catapp
